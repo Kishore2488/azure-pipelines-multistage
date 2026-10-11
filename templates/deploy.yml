@@ -1,0 +1,24 @@
+parameters:
+  - name: environmentName
+    type: string
+  - name: azureSubscription
+    type: string
+
+jobs:
+  - deployment: Deploy
+    displayName: "Deploy to ${{ parameters.environmentName }}"
+    pool:
+      vmImage: "ubuntu-latest"
+    environment: ${{ parameters.environmentName }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              artifact: app
+
+            - task: AzureWebApp@1
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                appName: "app-$(Build.Repository.Name)-${{ parameters.environmentName }}"
+                package: "$(Pipeline.Workspace)/app/app.zip"
