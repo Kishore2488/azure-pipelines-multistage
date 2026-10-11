@@ -1,0 +1,17 @@
+jobs:
+  - job: Test
+    pool:
+      vmImage: "ubuntu-latest"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.12"
+
+      - script: |
+          pip install -r app/requirements.txt
+          pip install pytest pytest-azurepipelines
+        displayName: "Install dependencies"
+
+      - script: |
+          python -m pytest tests/ -v
+        displayName: "Run unit tests"
