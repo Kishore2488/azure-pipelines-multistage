@@ -1,0 +1,24 @@
+jobs:
+  - job: Build
+    pool:
+      vmImage: "ubuntu-latest"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.12"
+
+      - script: |
+          pip install -r app/requirements.txt
+        displayName: "Install dependencies"
+
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: "app"
+          includeRootFolder: false
+          archiveType: "zip"
+          archiveFile: "$(Build.ArtifactStagingDirectory)/app.zip"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathToPublish: "$(Build.ArtifactStagingDirectory)/app.zip"
+          artifactName: "app"
