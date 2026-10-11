@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  - group: common-variables
+
+stages:
+  - stage: Build
+    displayName: "Build"
+    jobs:
+      - template: templates/build.yml
+
+  - stage: Test
+    displayName: "Test"
+    dependsOn: Build
+    jobs:
+      - template: templates/test.yml
+
+  - stage: DeployDev
+    displayName: "Deploy to Dev"
+    dependsOn: Test
+    condition: succeeded()
+    jobs:
+      - template: templates/deploy.yml
+        parameters:
+          environmentName: "dev"
+          azureSubscription: "service-connection-dev"
+
+  - stage: DeployProd
+    displayName: "Deploy to Prod"
+    dependsOn: DeployDev
+    condition: succeeded()
+    jobs:
+      - template: templates/deploy.yml
+        parameters:
+          environmentName: "prod"
+          azureSubscription: "service-connection-prod"
